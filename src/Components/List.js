@@ -1,4 +1,4 @@
-import { Cake, PartyPopper } from "lucide-react";
+import { Cake, PartyPopper, Plus, Minus } from "lucide-react";
 import { attr, MINE, OTHER } from "../Helpers/helpers";
 import { celebrities } from "../celebrities";
 import { Fragment, useState } from "react";
@@ -13,9 +13,6 @@ export default function List({
   mine = false,
 }) {
   const key = mine ? MINE : OTHER;
-
-  console.log(showTable);
-
   const [showCelebs, setShowCelebs] = useState({});
 
   const handleClickTable = () => {
@@ -24,9 +21,9 @@ export default function List({
     );
   };
 
-  const handleChange = (e, date) => {
+  const handleChange = (date) => {
     setShowCelebs((prev) => {
-      return { ...prev, [date]: e.target.checked };
+      return { ...prev, [date]: !prev[date] };
     });
   };
 
@@ -52,7 +49,7 @@ export default function List({
     <div {...attr} style={{ paddingBottom: "1rem" }}>
       <div className={wrapperClass}>
         <div onClick={handleClickTable}>
-          <Header label={label} />
+          <Header label={label} mine={mine} />
         </div>
         <Collapse in={showTable[key]}>
           <div>
@@ -62,7 +59,7 @@ export default function List({
                   <th {...attr}>{dateLabel}</th>
                   <th />
                   <th {...attr}>Celebrating months</th>
-                  <th />
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -73,7 +70,7 @@ export default function List({
 
                   return (
                     <Fragment key={milestone || celebritiesThisDay}>
-                      <tr>
+                      <tr onClick={() => handleChange(date)}>
                         <TableCell
                           value={date}
                           hasPassed={hasPassed}
@@ -90,14 +87,8 @@ export default function List({
                           isToday={isToday}
                         />
                         <td style={getRowStyle(hasPassed, isToday)}>
-                          {celebritiesThisDay.length > 0 && (
-                            <div>
-                              <input
-                                onChange={(e) => handleChange(e, date)}
-                                className="form-check-input"
-                                type="checkbox"
-                              />
-                            </div>
+                          {!mine && celebritiesThisDay.length > 0 && (
+                            <div>{showCelebs[date] ? <Minus /> : <Plus />}</div>
                           )}
                         </td>
                       </tr>
@@ -151,10 +142,10 @@ function getRowStyle(hasPassed, isToday) {
   return {};
 }
 
-function Header({ label }) {
+function Header({ label, mine }) {
   return (
     <div className="d-flex align-items-center justify-content-center my-3">
-      <Cake className="me-2" />
+      <Cake className={`me-2 ${mine ? "text-primary" : "text-warning"}`} />
       <h2 className="m-0 fs-4">{label}</h2>
     </div>
   );

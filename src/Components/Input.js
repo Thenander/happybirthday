@@ -15,7 +15,7 @@ export default function Input({ onClickHandler }) {
   return (
     <div {...attr}>
       <div>
-        <label htmlFor="date">
+        <label htmlFor="date" className="text-light">
           Enter your date of birth
           <input
             id="date"
@@ -31,7 +31,7 @@ export default function Input({ onClickHandler }) {
           <button
             type="button"
             onClick={handleSubmit}
-            className="btn btn-primary w-100 fs-1 mb-3"
+            className="btn btn-warning w-100 fs-1 mb-3"
             style={{ borderRadius: "100vh" }}
           >
             Find my birthdays!
