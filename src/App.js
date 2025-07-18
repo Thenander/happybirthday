@@ -5,11 +5,13 @@ import {
   attr,
   getMilestoneDatesFromBirthdate,
   getMonthMilestoneDates,
+  MINE,
 } from "./Helpers/helpers";
 import { Collapse, Container } from "react-bootstrap";
 import { Cake } from "lucide-react";
 
 export default function App() {
+  const [showTable, setShowTable] = useState({ [MINE]: false, other: true });
   // Get birthdate from localStorage
   const storedBirthdate = localStorage.getItem("birthdate");
 
@@ -21,6 +23,7 @@ export default function App() {
   useEffect(() => {
     if (storedBirthdate) {
       setMilestoneBirthdays(getMilestoneDatesFromBirthdate(storedBirthdate));
+      setShowTable({ [MINE]: true, other: false });
     }
   }, [storedBirthdate]);
 
@@ -52,6 +55,8 @@ export default function App() {
             list={milestoneBirthdays}
             label="My birthdays!"
             dateLabel="Birthdays"
+            showTable={showTable}
+            setShowTable={setShowTable}
             mine
           />
         </div>
@@ -62,6 +67,8 @@ export default function App() {
             list={getMonthMilestoneDates()}
             label="Who's celebrating today?"
             dateLabel="Date of birth"
+            showTable={showTable}
+            setShowTable={setShowTable}
           />
         </div>
       </Collapse>

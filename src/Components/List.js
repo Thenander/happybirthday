@@ -1,15 +1,28 @@
 import { Cake, PartyPopper } from "lucide-react";
-import { attr } from "../Helpers/helpers";
+import { attr, MINE, OTHER } from "../Helpers/helpers";
 import { celebrities } from "../celebrities";
 import { Fragment, useState } from "react";
+import { Collapse } from "react-bootstrap";
 
 export default function List({
   list = [],
   label = "",
   dateLabel = "",
+  showTable,
+  setShowTable,
   mine = false,
 }) {
+  const key = mine ? MINE : OTHER;
+
+  console.log(showTable);
+
   const [showCelebs, setShowCelebs] = useState({});
+
+  const handleClickTable = () => {
+    setShowTable((prev) =>
+      Object.fromEntries(Object.entries(prev).map(([k, v]) => [k, !v]))
+    );
+  };
 
   const handleChange = (e, date) => {
     setShowCelebs((prev) => {
@@ -38,71 +51,79 @@ export default function List({
   return (
     <div {...attr} style={{ paddingBottom: "1rem" }}>
       <div className={wrapperClass}>
-        <Header label={label} />
-        <table className={tableClass}>
-          <thead>
-            <tr>
-              <th {...attr}>{dateLabel}</th>
-              <th />
-              <th {...attr}>Celebrating months</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {list.map(({ milestone, date, hasPassed, isToday }) => {
-              const celebritiesThisDay = celebrities.filter(
-                ({ birthdate }) => birthdate === date
-              );
+        <div onClick={handleClickTable}>
+          <Header label={label} />
+        </div>
+        <Collapse in={showTable[key]}>
+          <div>
+            <table className={tableClass}>
+              <thead>
+                <tr>
+                  <th {...attr}>{dateLabel}</th>
+                  <th />
+                  <th {...attr}>Celebrating months</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {list.map(({ milestone, date, hasPassed, isToday }) => {
+                  const celebritiesThisDay = celebrities.filter(
+                    ({ birthdate }) => birthdate === date
+                  );
 
-              return (
-                <Fragment key={milestone || celebritiesThisDay}>
-                  <tr>
-                    <TableCell
-                      value={date}
-                      hasPassed={hasPassed}
-                      isToday={isToday}
-                    />
-                    <td style={getRowStyle(hasPassed, isToday)}>
-                      {isToday && <PartyPopper size={20} strokeWidth={1.5} />}
-                    </td>
-                    <TableCell
-                      value={milestone}
-                      hasPassed={hasPassed}
-                      isToday={isToday}
-                    />
-                    <td style={getRowStyle(hasPassed, isToday)}>
-                      {celebritiesThisDay.length > 0 && (
-                        <div>
-                          <input
-                            onChange={(e) => handleChange(e, date)}
-                            className="form-check-input"
-                            type="checkbox"
-                          />
-                        </div>
+                  return (
+                    <Fragment key={milestone || celebritiesThisDay}>
+                      <tr>
+                        <TableCell
+                          value={date}
+                          hasPassed={hasPassed}
+                          isToday={isToday}
+                        />
+                        <td style={getRowStyle(hasPassed, isToday)}>
+                          {isToday && (
+                            <PartyPopper size={20} strokeWidth={1.5} />
+                          )}
+                        </td>
+                        <TableCell
+                          value={milestone}
+                          hasPassed={hasPassed}
+                          isToday={isToday}
+                        />
+                        <td style={getRowStyle(hasPassed, isToday)}>
+                          {celebritiesThisDay.length > 0 && (
+                            <div>
+                              <input
+                                onChange={(e) => handleChange(e, date)}
+                                className="form-check-input"
+                                type="checkbox"
+                              />
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+
+                      {celebritiesThisDay.length > 0 && showCelebs[date] && (
+                        <tr>
+                          <td colSpan={100} className="bg-light">
+                            <ul className="text-start m-0 opacity-50">
+                              {celebritiesThisDay.map(({ name }) => {
+                                return (
+                                  <li key={name}>
+                                    <small>{name}</small>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                  </tr>
-
-                  {celebritiesThisDay.length > 0 && showCelebs[date] && (
-                    <tr>
-                      <td colSpan={100} className="bg-light">
-                        <ul className="text-start m-0 opacity-50">
-                          {celebritiesThisDay.map(({ name }) => {
-                            return (
-                              <li key={name}>
-                                <small>{name}</small>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Collapse>
       </div>
     </div>
   );

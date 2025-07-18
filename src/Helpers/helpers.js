@@ -72,3 +72,6 @@ export function getMilestoneDatesFromBirthdate(birthdateStr) {
     };
   });
 }
+
+export const MINE = "mine";
+export const OTHER = "other";
