@@ -17,6 +17,7 @@ export default function App() {
   const [showTable, setShowTable] = useState({ [MINE]: false, [OTHER]: true });
   const [show, setShow] = useState(false);
   const [confirm, setConfirm] = useState();
+  const [isActive, setIsActive] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -64,11 +65,32 @@ export default function App() {
     handleClose();
   };
 
+  function Burger(params) {
+    return (
+      <div className={styles["nav"]}>
+        <div
+          className={styles["menu-btn"]}
+          onClick={() => setIsActive((prev) => !prev)}
+        >
+          <div
+            className={`${styles["menu-btn__burger"]} ${
+              isActive
+                ? styles["burger-menu-active"]
+                : styles["burger-menu-inactive"]
+            }`}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Container
       style={{ maxWidth: "500px", minHeight: "100vh" }}
       className={styles.bg}
     >
+      <Burger />
+
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Forget saved birthdate</Modal.Title>
@@ -89,7 +111,8 @@ export default function App() {
             Forget birthdate
           </Button>
         </Modal.Footer>
-      </Modal>{" "}
+      </Modal>
+
       <div {...attr}>
         <div className="py-4">
           <Cake size={36} className="text-warning" />
@@ -98,7 +121,13 @@ export default function App() {
           </h1>
         </div>
       </div>
-      {!storedBirthdate && <Input onClickHandler={handleBirthdateSubmit} />}
+
+      <Collapse in={!storedBirthdate}>
+        <div>
+          <Input onClickHandler={handleBirthdateSubmit} />
+        </div>
+      </Collapse>
+
       <Collapse in={!!milestoneBirthdays}>
         <div>
           <List
@@ -111,6 +140,7 @@ export default function App() {
           />
         </div>
       </Collapse>
+
       <Collapse in={showTodayMilestones}>
         <div>
           <List
@@ -122,16 +152,19 @@ export default function App() {
           />
         </div>
       </Collapse>
-      {storedBirthdate && (
-        <button
-          type="button"
-          onClick={showConfirm}
-          className="btn btn-light w-100 mb-2"
-          style={{ borderRadius: "100vh" }}
-        >
-          Forget birthdate
-        </button>
-      )}
+
+      <Collapse in={storedBirthdate}>
+        <div>
+          <button
+            type="button"
+            onClick={showConfirm}
+            className="btn btn-light w-100 mb-2"
+            style={{ borderRadius: "100vh" }}
+          >
+            Forget birthdate
+          </button>
+        </div>
+      </Collapse>
     </Container>
   );
 }
