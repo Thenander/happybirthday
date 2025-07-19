@@ -3,6 +3,7 @@ import { attr, MINE, OTHER } from "../Helpers/helpers";
 import { celebrities } from "../celebrities";
 import { Fragment, useState } from "react";
 import { Collapse } from "react-bootstrap";
+import styles from "./List.module.css";
 
 export default function List({
   list = [],
@@ -38,7 +39,7 @@ export default function List({
       ? { opacity: 0.5 }
       : {};
 
-  const wrapperClass = `border rounded p-1 ${
+  const wrapperClass = `border p-1 ${
     mine ? "bg-warning" : "bg-primary text-light"
   }`;
   const tableClass = `table ${
@@ -47,7 +48,11 @@ export default function List({
 
   return (
     <div {...attr} style={{ paddingBottom: "1rem" }}>
-      <div className={wrapperClass}>
+      <div
+        className={`${wrapperClass} ${styles["animated"]} ${
+          showTable[key] ? styles["go-square"] : styles["go-round"]
+        }`}
+      >
         <div onClick={handleClickTable}>
           <Header label={label} mine={mine} />
         </div>

@@ -1,0 +1,37 @@
+/* Gemensamt */
+.animated {
+    overflow: hidden;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    box-shadow: 0 6px 16px 3px rgb(0 0 0 / 20%);
+}
+
+.go-round {
+    animation-duration: 0.5s;
+    animation-delay: .1s;
+    border-radius: 0.375rem;
+    animation-name: go-round;
+}
+
+.go-square {
+    border-radius: 10rem;
+    animation-name: go-square;
+}
+
+@keyframes go-round {
+    0% {
+        border-radius: 0.375rem;
+    }
+    100% {
+        border-radius: 10rem;
+    }
+}
+
+@keyframes go-square {
+    0% {
+        border-radius: 10rem;
+    }
+    100% {
+        border-radius: 0.375rem;
+    }
+}
