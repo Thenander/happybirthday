@@ -6,9 +6,12 @@ export default function Menu({
   menuIsActive,
   savedBirthdate,
   savedInterval,
+  savedListlength,
+  resetted,
   handleBirthdateRemoval,
   handleBirthdateSubmit,
   handleIntervalSubmit,
+  handleListlengthSubmit,
   handleAllReset,
   register,
   error,
@@ -44,6 +47,7 @@ export default function Menu({
   };
 
   const rowClass = styles["row"];
+  const errorClass = styles["error"];
 
   return (
     <div
@@ -62,8 +66,6 @@ export default function Menu({
         confirmColor={confirmColor}
       />
 
-      {error && <div className={`${rowClass} bg-danger`}>{error}</div>}
-
       <div className={rowClass} />
 
       <SubmitBirthdate
@@ -79,13 +81,25 @@ export default function Menu({
         register={register}
       />
 
+      <SubmitListLength
+        showListlengthSubmitModal={showListlengthSubmitModal}
+        rowClass={rowClass}
+        register={register}
+      />
+
       <RemoveBirthdate
         savedBirthdate={savedBirthdate}
         showConfirmRemoveModal={showConfirmRemoveModal}
         rowClass={rowClass}
       />
 
-      <Reset showAllResetModal={showAllResetModal} rowClass={rowClass} />
+      <Reset
+        showAllResetModal={showAllResetModal}
+        rowClass={rowClass}
+        resetted={resetted}
+      />
+
+      {error && <div className={`${errorClass}`}>{error}</div>}
     </div>
   );
 
@@ -147,7 +161,7 @@ export default function Menu({
     const action = "Change";
     const body = (
       <div>
-        <label htmlFor="birthdate" className="w-100">
+        <label htmlFor="interval" className="w-100">
           Enter interval{" "}
           <span>
             <small>{`(current: ${savedInterval})`}</small>
@@ -156,15 +170,7 @@ export default function Menu({
             autoFocus
             id="interval"
             name="interval"
-            {...register("interval", {
-              min: 1,
-              max: 1000,
-              validate: {
-                checkAvailability: (inp) => {
-                  console.log(inp);
-                },
-              },
-            })}
+            {...register("interval", { min: 1, max: 1000 })}
             className="form-control mb-3"
             type="number"
             min={1}
@@ -181,6 +187,41 @@ export default function Menu({
     handleShowModal();
     setOnConfirm(() => () => {
       handleIntervalSubmit();
+      handleCloseModal();
+    });
+  }
+
+  function showListlengthSubmitModal(register) {
+    const title = "Change list length";
+    const action = "Change";
+    const body = (
+      <div>
+        <label htmlFor="listlength" className="w-100">
+          Enter list length{" "}
+          <span>
+            <small>{`(current: ${savedListlength})`}</small>
+          </span>
+          <input
+            autoFocus
+            id="listlength"
+            name="listlength"
+            {...register("listlength", { min: 1, max: 100 })}
+            className="form-control mb-3"
+            type="number"
+            min={1}
+            max={1000}
+          />
+        </label>
+      </div>
+    );
+
+    setModalTitle(title);
+    setModalBody(body);
+    setConfirmLabel(action);
+    setConfirmColor("primary");
+    handleShowModal();
+    setOnConfirm(() => () => {
+      handleListlengthSubmit();
       handleCloseModal();
     });
   }
@@ -248,10 +289,23 @@ function SubmitInterval({ showIntervalSubmitModal, rowClass, register }) {
   );
 }
 
-function Reset({ showAllResetModal, rowClass }) {
+function SubmitListLength({ showListlengthSubmitModal, rowClass, register }) {
   return (
-    <div className={rowClass} onClick={showAllResetModal}>
-      <span>Reset all...</span>
+    <div
+      className={rowClass}
+      onClick={() => showListlengthSubmitModal(register)}
+    >
+      <span>Change list length...</span>
+    </div>
+  );
+}
+
+function Reset({ showAllResetModal, rowClass, resetted }) {
+  const removeBirthdate = () => isDisabled(resetted, showAllResetModal);
+
+  return (
+    <div className={rowClass} onClick={removeBirthdate}>
+      <span className={isDisabled(!resetted)}>Reset all...</span>
     </div>
   );
 }

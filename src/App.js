@@ -22,10 +22,14 @@ export default function App() {
   const savedInterval = localStorage.getItem("interval") || 100;
   const savedListlength = localStorage.getItem("listlength") || 10;
 
+  const resetted =
+    !!localStorage.getItem("birthdate") ||
+    !!localStorage.getItem("interval") ||
+    !!localStorage.getItem("listlength");
+
   const [showTable, setShowTable] = useState({ [MINE]: false, [OTHER]: true });
   const [menuIsActive, setMenuIsActive] = useState(false);
   const [error, setError] = useState();
-  console.log(error);
 
   const { register, getValues, reset } = useForm();
 
@@ -70,9 +74,12 @@ export default function App() {
         menuIsActive={menuIsActive}
         savedBirthdate={savedBirthdate}
         savedInterval={savedInterval}
+        savedListlength={savedListlength}
+        resetted={resetted}
         handleBirthdateRemoval={handleBirthdateRemoval}
         handleBirthdateSubmit={handleBirthdateSubmit}
         handleIntervalSubmit={handleIntervalSubmit}
+        handleListlengthSubmit={handleListlengthSubmit}
         handleAllReset={handleAllReset}
         register={register}
         error={error}
@@ -139,7 +146,9 @@ export default function App() {
   function handleIntervalSubmit() {
     const interval = getValues("interval");
     if (!isValidNumber(interval)) {
-      setError("Not valid!");
+      setError(
+        "You've entered an invalid interval! It has to be between 1 and 1000"
+      );
       return;
     }
 
@@ -154,6 +163,34 @@ export default function App() {
     function isValidNumber(input) {
       // Only allow numbers between 1 and 1000
       const regex = /^(?:[1-9]|[1-9][0-9]|[1-9][0-9]{2}|1000)$/;
+      return regex.test(String(input));
+    }
+  }
+
+  function handleListlengthSubmit() {
+    const listlength = getValues("listlength");
+    if (!isValidNumber(listlength)) {
+      setError(
+        `You've entered an invalid length!\nIt cannot be longer than 100!\n(or shorter than 1)`
+      );
+      return;
+    }
+
+    localStorage.setItem("listlength", listlength);
+    setMenuIsActive(false);
+    setMilestoneBirthdays(
+      getMilestoneDatesFromBirthdate(
+        savedBirthdate,
+        listlength,
+        savedListlength
+      )
+    );
+
+    reset();
+
+    function isValidNumber(input) {
+      // Only allow numbers between 1 and 100
+      const regex = /^(?:[1-9]|[1-9][0-9]|100)$/;
       return regex.test(String(input));
     }
   }

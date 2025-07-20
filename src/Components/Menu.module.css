@@ -28,9 +28,11 @@
 
 .error {
     display: flex;
-    align-items: center;
-    height: 48px;
+    align-items: start;
+    height: 100%;
     border-bottom: 1px solid;
+    padding-top: 1rem;
     padding-left: 1rem;
-    background-color: #0d6efd;
+    background-color: #fd0d0d;
+    white-space: pre;
 }
