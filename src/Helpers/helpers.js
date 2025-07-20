@@ -63,7 +63,9 @@ export function getMilestoneDatesFromBirthdate(
   length = 10
 ) {
   const birthdate = new Date(birthdateStr);
-  if (Number.isNaN(birthdate)) throw new Error("Invalid date");
+  if (Number.isNaN(birthdate)) {
+    throw new Error("Invalid date");
+  }
 
   const todayStr = formatLocalDate(new Date());
 

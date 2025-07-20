@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Input from "./Components/Input";
 import List from "./Components/List";
 import {
   attr,
@@ -8,7 +7,8 @@ import {
   MINE,
   OTHER,
 } from "./Helpers/helpers";
-import { Button, Collapse, Container, Modal } from "react-bootstrap";
+import Collapse from "react-bootstrap/Collapse";
+import Container from "react-bootstrap/Container";
 import { Cake } from "lucide-react";
 
 import styles from "./App.module.css";
@@ -18,37 +18,31 @@ import Menu from "./Components/Menu";
 import { useForm } from "react-hook-form";
 
 export default function App() {
+  const savedBirthdate = localStorage.getItem("birthdate");
+  const savedInterval = localStorage.getItem("interval") || 100;
+  const savedListlength = localStorage.getItem("listlength") || 10;
+
   const [showTable, setShowTable] = useState({ [MINE]: false, [OTHER]: true });
   const [menuIsActive, setMenuIsActive] = useState(false);
-  const [period, setPeriod] = useState(100);
-  const [listLength, setListLength] = useState(10);
-  const [confirmRegisterDateOfBirth, setConfirmRegisterDateOfBirth] =
-    useState();
+  const [error, setError] = useState();
+  console.log(error);
 
   const { register, getValues, reset } = useForm();
 
-  console.log(getValues());
-
-  /*   
-  const [show, setShow] = useState(false);
-  const [confirm, setConfirm] = useState();
- */
-
-  // Get birthdate from localStorage
-  const storedBirthdate = localStorage.getItem("birthdate");
-
-  // State for milestone birthdays and animation
   const [milestoneBirthdays, setMilestoneBirthdays] = useState();
   const [showTodayMilestones, setShowTodayMilestones] = useState(false);
 
-  // Update milestone birthdays when birthdate changes
   useEffect(() => {
-    if (storedBirthdate) {
+    if (savedBirthdate) {
       setMilestoneBirthdays(
-        getMilestoneDatesFromBirthdate(storedBirthdate, period, listLength)
+        getMilestoneDatesFromBirthdate(
+          savedBirthdate,
+          savedInterval,
+          savedListlength
+        )
       );
     }
-  }, [listLength, period, storedBirthdate]);
+  }, [savedBirthdate, savedInterval, savedListlength]);
 
   useEffect(() => {
     if (milestoneBirthdays?.find((i) => i.isToday)) {
@@ -56,38 +50,11 @@ export default function App() {
     }
   }, [milestoneBirthdays]);
 
-  // Show today's milestones after mount
   useEffect(() => {
     const timer = setTimeout(() => setShowTodayMilestones(true), 0);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle birthdate input
-  const handleBirthdateSubmit = (birthdate) => {
-    localStorage.setItem("birthdate", birthdate);
-    setMilestoneBirthdays(
-      getMilestoneDatesFromBirthdate(birthdate, period, listLength)
-    );
-  };
-
-  /*   const showConfirmForget = () => {
-    handleShowModal();
-  }; */
-
-  /* 
-  const showConfirm = () => {
-    setConfirm({ onConfirm: handleDelete });
-    handleShowModal();
-  }; 
-  */
-
-  /*   const handleDelete = () => {
-    localStorage.removeItem("birthdate");
-    setMilestoneBirthdays();
-    handleCloseModal();
-    setMenuIsActive(false);
-  };
- */
   return (
     <Container
       style={{
@@ -101,49 +68,27 @@ export default function App() {
       <Burger menuIsActive={menuIsActive} setMenuIsActive={setMenuIsActive} />
       <Menu
         menuIsActive={menuIsActive}
-        storedBirthdate={storedBirthdate}
-        handleForgetDateOfBirth={handleForgetDateOfBirth}
-        handleRegisterDateOfBirth={handleRegisterDateOfBirth}
+        savedBirthdate={savedBirthdate}
+        savedInterval={savedInterval}
+        handleBirthdateRemoval={handleBirthdateRemoval}
+        handleBirthdateSubmit={handleBirthdateSubmit}
+        handleIntervalSubmit={handleIntervalSubmit}
         register={register}
-        getValues={getValues}
-        reset={reset}
+        error={error}
+        setError={setError}
       />
-
-      {/*       
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Forget saved birthdate</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            Are you really sure you want to forget your saved birthdate?
-          </div>
-          <small className="text-muted">
-            You will be able to enter it again, though.
-          </small>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="danger" onClick={confirm?.onConfirm}>
-            Forget birthdate
-          </Button>
-        </Modal.Footer>
-      </Modal> 
-      */}
 
       <div className={menuIsActive ? styles["main_blurred"] : styles["main"]}>
         <div {...attr}>
           <div className="py-4">
             <Cake size={36} className="text-warning" />
             <h1 className="m-0 fs-2 mt-2 text-light">
-              {`Celebrate every ${period} months!`}
+              {`Celebrate every ${savedInterval} months!`}
             </h1>
           </div>
         </div>
 
-        <Collapse in={!!milestoneBirthdays}>
+        <Collapse in={!!milestoneBirthdays && savedBirthdate}>
           <div>
             <List
               list={milestoneBirthdays}
@@ -159,7 +104,7 @@ export default function App() {
         <Collapse in={showTodayMilestones}>
           <div>
             <List
-              list={getMonthMilestoneDates(period, listLength)}
+              list={getMonthMilestoneDates(savedInterval, savedListlength)}
               label="Who's celebrating today?"
               dateLabel="Date of birth"
               showTable={showTable}
@@ -171,15 +116,44 @@ export default function App() {
     </Container>
   );
 
-  function handleForgetDateOfBirth() {
+  function handleBirthdateRemoval() {
     localStorage.removeItem("birthdate");
     setMilestoneBirthdays();
     setMenuIsActive(false);
+
+    reset();
   }
 
-  function handleRegisterDateOfBirth() {
-    const date = getValues("birthdate");
-    localStorage.setItem("birthdate", date);
+  function handleBirthdateSubmit() {
+    const birthdate = getValues("birthdate");
+    localStorage.setItem("birthdate", birthdate);
     setMenuIsActive(false);
+    setMilestoneBirthdays(
+      getMilestoneDatesFromBirthdate(birthdate, savedInterval, savedListlength)
+    );
+
+    reset();
+  }
+
+  function handleIntervalSubmit() {
+    const interval = getValues("interval");
+    if (!isValidNumber(interval)) {
+      setError("Not valid!");
+      return;
+    }
+
+    localStorage.setItem("interval", interval);
+    setMenuIsActive(false);
+    setMilestoneBirthdays(
+      getMilestoneDatesFromBirthdate(savedBirthdate, interval, savedListlength)
+    );
+
+    reset();
+
+    function isValidNumber(input) {
+      // Only allow numbers between 1 and 1000
+      const regex = /^(?:[1-9]|[1-9][0-9]|[1-9][0-9]{2}|1000)$/;
+      return regex.test(String(input));
+    }
   }
 }

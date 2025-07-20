@@ -1,16 +1,18 @@
-import { Button, Modal } from "react-bootstrap";
 import styles from "./Menu.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ConfirmModal } from "./ConfirmModal";
-import Input from "./Input";
 
 export default function Menu({
   menuIsActive,
-  storedBirthdate,
-  handleForgetDateOfBirth,
-  handleRegisterDateOfBirth,
+  savedBirthdate,
+  savedInterval,
+  handleBirthdateRemoval,
+  handleBirthdateSubmit,
+  handleIntervalSubmit,
+  register,
+  error,
+  setError,
 }) {
-  /* Modal */
   const [showModal, setShowModal] = useState();
   const [modalTitle, setModalTitle] = useState();
   const [modalBody, setModalBody] = useState();
@@ -19,14 +21,27 @@ export default function Menu({
   const [onConfirm, setOnConfirm] = useState();
   const [confirmLabelVariant, setConfirmLabelVariant] = useState();
 
-  const handleCloseModal = () => setShowModal(false);
-  const handleShowModal = () => setShowModal(true);
+  useEffect(() => {
+    if (menuIsActive) {
+      setError();
+    }
+  }, [menuIsActive, setError]);
 
-  /*
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
- */
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    resetModalInfo();
+  };
+
+  const resetModalInfo = () => {
+    setModalTitle();
+    setModalBody();
+    setCloseLabel();
+    setConfirmLabel();
+    setOnConfirm();
+    setConfirmLabelVariant();
+  };
+
   const rowClass = styles["row"];
 
   return (
@@ -45,132 +60,164 @@ export default function Menu({
         onConfirm={onConfirm}
         confirmLabelVariant={confirmLabelVariant}
       />
-      {/*       <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change number of months</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            Are you really sure you want to change number of months?
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => {
-              handlePeriod(25);
-              handleClose();
-            }}
-          >
-            Change
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      */}
+
+      {error && <div className={`${rowClass} bg-danger`}>{error}</div>}
+
       <div className={rowClass} />
 
-      <RegisterBirthDate
-        storedBirthdate={storedBirthdate}
-        showRegisterDateOfBirthModal={showRegisterDateOfBirthModal}
+      <SubmitBirthdate
+        savedBirthdate={savedBirthdate}
+        showBirthdateSubmitModal={showBirthdateSubmitModal}
+        rowClass={rowClass}
+        register={register}
+      />
+
+      <RemoveBirthdate
+        savedBirthdate={savedBirthdate}
+        showConfirmRemoveModal={showConfirmRemoveModal}
         rowClass={rowClass}
       />
 
-      <Forget
-        storedBirthdate={storedBirthdate}
-        showConfirmForgetModal={showConfirmForgetModal}
+      <SubmitInterval
+        showIntervalSubmitModal={showIntervalSubmitModal}
         rowClass={rowClass}
+        register={register}
       />
-      {/*
-      <div className={rowClass} onClick={handleShow}>
-        Change range...
-      </div>
-     */}
+
       <div className={rowClass}>Other</div>
     </div>
   );
 
-  function showConfirmForgetModal() {
-    const action = "Forget saved birthdate";
+  function showConfirmRemoveModal() {
+    const title = "Remove saved birthdate";
+    const action = "Remove";
+    const main = "Are you really sure you want to remove your saved birthdate?";
+    const sub = "You will be able to enter it again, though.";
+    const body = (
+      <>
+        <div className="mb-3">{main}</div>
+        <small className="text-muted">{sub}</small>
+      </>
+    );
 
     handleShowModal();
-    setModalTitle(action);
-    setModalBody(<Body />);
+    setModalTitle(title);
+    setModalBody(body);
     setConfirmLabel(action);
+    setConfirmLabelVariant("danger");
     setOnConfirm(() => () => {
-      handleForgetDateOfBirth();
+      handleBirthdateRemoval();
       handleCloseModal();
     });
-
-    function Body() {
-      const main =
-        "Are you really sure you want to forget your saved birthdate?";
-      const sub = "You will be able to enter it again, though.";
-
-      return (
-        <>
-          <div className="mb-3">{main}</div>
-          <small className="text-muted">{sub}</small>
-        </>
-      );
-    }
   }
 
-  function showRegisterDateOfBirthModal(date) {
-    const action = "Register date of birth";
-    let d;
+  function showBirthdateSubmitModal(register) {
+    const title = "Submit date of birth";
+    const action = "Submit";
+    const body = (
+      <div>
+        <label htmlFor="birthdate" className="w-100">
+          Enter date of birth
+          <input
+            autoFocus
+            id="birthdate"
+            name="birthdate"
+            {...register("birthdate")}
+            className="form-control mb-3"
+            type="date"
+          />
+        </label>
+      </div>
+    );
 
-    setModalTitle(action);
-    setModalBody(<Body />);
+    setModalTitle(title);
+    setModalBody(body);
     setConfirmLabel(action);
+    setConfirmLabelVariant("primary");
     handleShowModal();
     setOnConfirm(() => () => {
-      handleRegisterDateOfBirth(date);
+      handleBirthdateSubmit();
       handleCloseModal();
     });
+  }
 
-    function Body() {
-      return (
-        <div>
-          <label htmlFor="date" className="w-100">
-            Date of birth
-            <input
-              id="date"
-              className="form-control mb-3"
-              type="date"
-              onChange={() => {}}
-            />
-          </label>
-        </div>
-      );
-    }
+  function showIntervalSubmitModal(register) {
+    const title = "Submit months interval";
+    const action = "Submit";
+    const body = (
+      <div>
+        <label htmlFor="birthdate" className="w-100">
+          Enter interval{" "}
+          <span>
+            <small>{`(current: ${savedInterval})`}</small>
+          </span>
+          <input
+            autoFocus
+            id="interval"
+            name="interval"
+            {...register("interval", {
+              min: 1,
+              max: 1000,
+              validate: {
+                checkAvailability: (inp) => {
+                  console.log(inp);
+                },
+              },
+            })}
+            className="form-control mb-3"
+            type="number"
+            min={1}
+            max={1000}
+          />
+        </label>
+      </div>
+    );
+
+    setModalTitle(title);
+    setModalBody(body);
+    setConfirmLabel(action);
+    setConfirmLabelVariant("primary");
+    handleShowModal();
+    setOnConfirm(() => () => {
+      handleIntervalSubmit();
+      handleCloseModal();
+    });
   }
 }
 
-function Forget({ storedBirthdate, showConfirmForgetModal, rowClass }) {
-  const forgetDateOfBirth = () =>
-    isDisabled(storedBirthdate, showConfirmForgetModal);
+function SubmitBirthdate({
+  savedBirthdate,
+  showBirthdateSubmitModal,
+  rowClass,
+  register,
+}) {
+  const submitBirthdate = () =>
+    isDisabled(!savedBirthdate, () => showBirthdateSubmitModal(register));
 
   return (
-    <div className={rowClass} onClick={forgetDateOfBirth}>
-      <span className={isDisabled(!storedBirthdate)}>Forget birthdate</span>
+    <div className={rowClass} onClick={submitBirthdate}>
+      <span className={isDisabled(savedBirthdate)}>
+        Submit date of birth...
+      </span>
     </div>
   );
 }
 
-function RegisterBirthDate({
-  storedBirthdate,
-  showRegisterDateOfBirthModal,
-  rowClass,
-}) {
-  const registerDateOfBirth = () =>
-    isDisabled(!storedBirthdate, showRegisterDateOfBirthModal);
+function RemoveBirthdate({ savedBirthdate, showConfirmRemoveModal, rowClass }) {
+  const removeBirthdate = () =>
+    isDisabled(savedBirthdate, showConfirmRemoveModal);
 
   return (
-    <div className={rowClass} onClick={registerDateOfBirth}>
-      Register date of birth...
+    <div className={rowClass} onClick={removeBirthdate}>
+      <span className={isDisabled(!savedBirthdate)}>Remove date of birth</span>
+    </div>
+  );
+}
+
+function SubmitInterval({ showIntervalSubmitModal, rowClass, register }) {
+  return (
+    <div className={rowClass} onClick={() => showIntervalSubmitModal(register)}>
+      <span>Submit months interval</span>
     </div>
   );
 }
