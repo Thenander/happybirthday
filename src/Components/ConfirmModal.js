@@ -9,21 +9,22 @@ export function ConfirmModal({
   closeLabel = "Close",
   confirmLabel = "Delete",
   onConfirm = () => {},
-  confirmLabelVariant = "danger",
+  confirmColor = "danger",
 }) {
-  const bgStyle = {
-    backgroundColor: "#043889",
-    border: "1px solid #fff",
-    color: "#fff",
-  };
-  const buttonStyle = {
+  const confirmButton = {
     borderRadius: "10rem",
     textTransform: "uppercase",
     width: "100%",
   };
+
   return (
     <Modal show={showModal} onHide={handleCloseModal}>
-      <Modal.Header closeButton style={bgStyle} closeVariant="white">
+      <Modal.Header
+        className={`bg-${confirmColor} text-light`}
+        closeButton
+        style={{ border: "1px solid #fff" }}
+        closeVariant="white"
+      >
         <Modal.Title>{modalTitle}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -40,9 +41,9 @@ export function ConfirmModal({
       <Modal.Footer>
         <Button
           size="lg"
-          variant={confirmLabelVariant}
+          variant={confirmColor}
           onClick={onConfirm}
-          style={buttonStyle}
+          style={confirmButton}
         >
           {confirmLabel}
         </Button>

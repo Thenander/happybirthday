@@ -9,6 +9,7 @@ export default function Menu({
   handleBirthdateRemoval,
   handleBirthdateSubmit,
   handleIntervalSubmit,
+  handleAllReset,
   register,
   error,
   setError,
@@ -19,7 +20,7 @@ export default function Menu({
   const [closeLabel, setCloseLabel] = useState();
   const [confirmLabel, setConfirmLabel] = useState();
   const [onConfirm, setOnConfirm] = useState();
-  const [confirmLabelVariant, setConfirmLabelVariant] = useState();
+  const [confirmColor, setConfirmColor] = useState();
 
   useEffect(() => {
     if (menuIsActive) {
@@ -39,7 +40,7 @@ export default function Menu({
     setCloseLabel();
     setConfirmLabel();
     setOnConfirm();
-    setConfirmLabelVariant();
+    setConfirmColor();
   };
 
   const rowClass = styles["row"];
@@ -58,7 +59,7 @@ export default function Menu({
         closeLabel={closeLabel}
         confirmLabel={confirmLabel}
         onConfirm={onConfirm}
-        confirmLabelVariant={confirmLabelVariant}
+        confirmColor={confirmColor}
       />
 
       {error && <div className={`${rowClass} bg-danger`}>{error}</div>}
@@ -72,19 +73,19 @@ export default function Menu({
         register={register}
       />
 
-      <RemoveBirthdate
-        savedBirthdate={savedBirthdate}
-        showConfirmRemoveModal={showConfirmRemoveModal}
-        rowClass={rowClass}
-      />
-
       <SubmitInterval
         showIntervalSubmitModal={showIntervalSubmitModal}
         rowClass={rowClass}
         register={register}
       />
 
-      <div className={rowClass}>Other</div>
+      <RemoveBirthdate
+        savedBirthdate={savedBirthdate}
+        showConfirmRemoveModal={showConfirmRemoveModal}
+        rowClass={rowClass}
+      />
+
+      <Reset showAllResetModal={showAllResetModal} rowClass={rowClass} />
     </div>
   );
 
@@ -104,7 +105,7 @@ export default function Menu({
     setModalTitle(title);
     setModalBody(body);
     setConfirmLabel(action);
-    setConfirmLabelVariant("danger");
+    setConfirmColor("danger");
     setOnConfirm(() => () => {
       handleBirthdateRemoval();
       handleCloseModal();
@@ -133,7 +134,7 @@ export default function Menu({
     setModalTitle(title);
     setModalBody(body);
     setConfirmLabel(action);
-    setConfirmLabelVariant("primary");
+    setConfirmColor("primary");
     handleShowModal();
     setOnConfirm(() => () => {
       handleBirthdateSubmit();
@@ -142,8 +143,8 @@ export default function Menu({
   }
 
   function showIntervalSubmitModal(register) {
-    const title = "Submit months interval";
-    const action = "Submit";
+    const title = "Change months interval";
+    const action = "Change";
     const body = (
       <div>
         <label htmlFor="birthdate" className="w-100">
@@ -176,10 +177,33 @@ export default function Menu({
     setModalTitle(title);
     setModalBody(body);
     setConfirmLabel(action);
-    setConfirmLabelVariant("primary");
+    setConfirmColor("primary");
     handleShowModal();
     setOnConfirm(() => () => {
       handleIntervalSubmit();
+      handleCloseModal();
+    });
+  }
+
+  function showAllResetModal() {
+    const title = "Reset all";
+    const action = "Reset";
+    const main = "Are you really sure you want to reset all data?";
+    const sub = "This cannot be undone.";
+    const body = (
+      <>
+        <div className="mb-3">{main}</div>
+        <small className="text-danger">{sub}</small>
+      </>
+    );
+
+    handleShowModal();
+    setModalTitle(title);
+    setModalBody(body);
+    setConfirmLabel(action);
+    setConfirmColor("danger");
+    setOnConfirm(() => () => {
+      handleAllReset();
       handleCloseModal();
     });
   }
@@ -209,7 +233,9 @@ function RemoveBirthdate({ savedBirthdate, showConfirmRemoveModal, rowClass }) {
 
   return (
     <div className={rowClass} onClick={removeBirthdate}>
-      <span className={isDisabled(!savedBirthdate)}>Remove date of birth</span>
+      <span className={isDisabled(!savedBirthdate)}>
+        Remove date of birth...
+      </span>
     </div>
   );
 }
@@ -217,7 +243,15 @@ function RemoveBirthdate({ savedBirthdate, showConfirmRemoveModal, rowClass }) {
 function SubmitInterval({ showIntervalSubmitModal, rowClass, register }) {
   return (
     <div className={rowClass} onClick={() => showIntervalSubmitModal(register)}>
-      <span>Submit months interval</span>
+      <span>Change months interval...</span>
+    </div>
+  );
+}
+
+function Reset({ showAllResetModal, rowClass }) {
+  return (
+    <div className={rowClass} onClick={showAllResetModal}>
+      <span>Reset all...</span>
     </div>
   );
 }

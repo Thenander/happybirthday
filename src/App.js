@@ -73,6 +73,7 @@ export default function App() {
         handleBirthdateRemoval={handleBirthdateRemoval}
         handleBirthdateSubmit={handleBirthdateSubmit}
         handleIntervalSubmit={handleIntervalSubmit}
+        handleAllReset={handleAllReset}
         register={register}
         error={error}
         setError={setError}
@@ -155,5 +156,13 @@ export default function App() {
       const regex = /^(?:[1-9]|[1-9][0-9]|[1-9][0-9]{2}|1000)$/;
       return regex.test(String(input));
     }
+  }
+
+  function handleAllReset() {
+    localStorage.clear();
+    setMilestoneBirthdays();
+    setMenuIsActive(false);
+
+    reset();
   }
 }
