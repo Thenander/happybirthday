@@ -7,7 +7,7 @@
 }
 
 .go-round {
-    animation-duration: 0.5s;
+    animation-duration: 1s;
     animation-delay: .1s;
     border-radius: 0.375rem;
     animation-name: go-round;

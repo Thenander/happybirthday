@@ -1,15 +1,15 @@
 import styles from "./Burger.module.css";
 
-export default function Burger({ setIsActive, isActive }) {
+export default function Burger({ menuIsActive, setMenuIsActive }) {
   return (
     <div className={styles["nav"]}>
       <div
         className={styles["menu-btn"]}
-        onClick={() => setIsActive((prev) => !prev)}
+        onClick={() => setMenuIsActive((prev) => !prev)}
       >
         <div
           className={`${styles["menu-btn__burger"]} ${
-            isActive
+            menuIsActive
               ? styles["burger-menu-active"]
               : styles["burger-menu-inactive"]
           }`}

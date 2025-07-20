@@ -15,18 +15,24 @@ import styles from "./App.module.css";
 import Burger from "./Components/Burger";
 import Menu from "./Components/Menu";
 
+import { useForm } from "react-hook-form";
+
 export default function App() {
   const [showTable, setShowTable] = useState({ [MINE]: false, [OTHER]: true });
-  const [show, setShow] = useState(false);
-  const [confirm, setConfirm] = useState();
   const [menuIsActive, setMenuIsActive] = useState(false);
   const [period, setPeriod] = useState(100);
   const [listLength, setListLength] = useState(10);
   const [confirmRegisterDateOfBirth, setConfirmRegisterDateOfBirth] =
     useState();
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const { register, getValues, reset } = useForm();
+
+  console.log(getValues());
+
+  /*   
+  const [show, setShow] = useState(false);
+  const [confirm, setConfirm] = useState();
+ */
 
   // Get birthdate from localStorage
   const storedBirthdate = localStorage.getItem("birthdate");
@@ -64,23 +70,24 @@ export default function App() {
     );
   };
 
+  /*   const showConfirmForget = () => {
+    handleShowModal();
+  }; */
+
+  /* 
   const showConfirm = () => {
     setConfirm({ onConfirm: handleDelete });
-    handleShow();
-  };
+    handleShowModal();
+  }; 
+  */
 
-  const handleDelete = () => {
+  /*   const handleDelete = () => {
     localStorage.removeItem("birthdate");
     setMilestoneBirthdays();
-    handleClose();
+    handleCloseModal();
     setMenuIsActive(false);
   };
-
-  const handlePeriod = (period) => {
-    setPeriod(period);
-    setMenuIsActive(false);
-  };
-
+ */
   return (
     <Container
       style={{
@@ -91,16 +98,19 @@ export default function App() {
       }}
       className={styles.bg}
     >
-      <Burger isActive={menuIsActive} setIsActive={setMenuIsActive} />
-
+      <Burger menuIsActive={menuIsActive} setMenuIsActive={setMenuIsActive} />
       <Menu
         menuIsActive={menuIsActive}
-        showConfirm={showConfirm}
-        handlePeriod={handlePeriod}
         storedBirthdate={storedBirthdate}
+        handleForgetDateOfBirth={handleForgetDateOfBirth}
+        handleRegisterDateOfBirth={handleRegisterDateOfBirth}
+        register={register}
+        getValues={getValues}
+        reset={reset}
       />
 
-      <Modal show={show} onHide={handleClose}>
+      {/*       
+      <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Forget saved birthdate</Modal.Title>
         </Modal.Header>
@@ -113,14 +123,15 @@ export default function App() {
           </small>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleCloseModal}>
             Close
           </Button>
           <Button variant="danger" onClick={confirm?.onConfirm}>
             Forget birthdate
           </Button>
         </Modal.Footer>
-      </Modal>
+      </Modal> 
+      */}
 
       <div className={menuIsActive ? styles["main_blurred"] : styles["main"]}>
         <div {...attr}>
@@ -131,12 +142,6 @@ export default function App() {
             </h1>
           </div>
         </div>
-
-        <Collapse in={!storedBirthdate}>
-          <div>
-            <Input onClickHandler={handleBirthdateSubmit} />
-          </div>
-        </Collapse>
 
         <Collapse in={!!milestoneBirthdays}>
           <div>
@@ -165,31 +170,16 @@ export default function App() {
       </div>
     </Container>
   );
-}
-function ConfirmModal({
-  show = false,
-  handleClose = () => {},
-  modalTitle = "",
-  modalBody = "",
-  closeLabel = "Close",
-  confirmLabel = "Delete",
-  onConfirm = () => {},
-  confirmLabelVariant = "danger",
-}) {
-  return (
-    <Modal show={show} onHide={handleClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>{modalTitle}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>{modalBody}</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
-          {closeLabel}
-        </Button>
-        <Button variant={confirmLabelVariant} onClick={onConfirm}>
-          {confirmLabel}
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
+
+  function handleForgetDateOfBirth() {
+    localStorage.removeItem("birthdate");
+    setMilestoneBirthdays();
+    setMenuIsActive(false);
+  }
+
+  function handleRegisterDateOfBirth() {
+    const date = getValues("birthdate");
+    localStorage.setItem("birthdate", date);
+    setMenuIsActive(false);
+  }
 }
